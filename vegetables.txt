@@ -1,0 +1,17 @@
+celery
+carrots
+iceberg lettuce
+romaine lettuce
+potatoes
+bell peppers
+corn
+eggplant
+mushrooms
+broccoli
+cauliflower
+spinach
+kale
+cucumber
+zucchini
+butternut squash
+beets

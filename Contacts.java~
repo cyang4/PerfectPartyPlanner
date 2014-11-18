@@ -1,0 +1,175 @@
+/******************************************************************************
+  * Contacts.java
+  * Code emulates a contact book with name, preferences (main, vegetable,
+  * dessert) and allergies. Employs a hash table with name as key and
+  * Person class as value.
+  * 
+  * Final Project
+  * Created 5/6/14 by Cecille Yang
+  * Last Updated on 5/8/14 by Cecille Yang
+  * 
+  * Methods needed still:
+  * 
+  * 
+  * Testing to be done:
+  * Adding people
+  * More people in file read in
+  * Read in file, add people, save file
+  * ******************************************************************/
+
+import java.util.*;
+import java.io.*;
+public class Contacts{
+  private Hashtable <String, Person> contacts;
+  private int numContacts; //to be incremented each time a contact is added
+  private final String END_ENTRY = "---";
+  boolean fileIsCorrect;
+  
+  /*********************************************************************
+    * Default constructor, constructs an empty contacts list
+    * *****************************************************************/
+  public Contacts(){
+    contacts = new Hashtable<String, Person>();
+    numContacts = 0;
+  }
+  /*********************************************************************
+    * Alternative constructor, reads in a file to load previously
+    * saved contacts.
+    * *****************************************************************/
+  public Contacts(String filename){
+    numContacts = 0;
+    try {
+      
+      File f = new File(filename);
+      Scanner s = new Scanner(f);
+      contacts = new Hashtable<String, Person>();
+      
+      while(s.hasNext()){
+        String temp = s.nextLine();
+        //System.out.println(temp);
+        //if file is not signaling the end of a person...
+        if(!temp.equals(END_ENTRY)){
+          String favMain = s.nextLine();
+          String favVeg = s.nextLine();
+          String favDes = s.nextLine();
+          String allergy = s.nextLine();
+          Person tempP = constructPerson(temp, favMain, favVeg, favDes, allergy);
+          add(temp, tempP);
+          temp = s.nextLine();
+        }
+        //else the next is signaling the end of a person.
+        else{
+          temp = s.nextLine();
+        }
+      }
+    }     
+    
+    
+    catch(FileNotFoundException e){
+      fileIsCorrect = false;
+      System.out.println("Sorry, filename is not correct");
+    }
+    
+  }
+  /*********************************************************************
+    * Helper method for second constructor to make a person from a series
+    * of Strings
+    * *****************************************************************/
+  private Person constructPerson(String name, String favMain, String favVeg, String favDes, String allergy){
+    LinkedList<String> m = convertLinked(favMain);
+    LinkedList<String> v = convertLinked(favVeg);
+    LinkedList<String> d = convertLinked(favDes);
+    LinkedList<String> a = convertLinked(allergy);
+    
+    return new Person(name, m, v, d, a);
+  }
+  /*********************************************************************
+    * Helper method for constructPerson to convert a string to a linked
+    * list
+    * *****************************************************************/
+  private LinkedList<String> convertLinked(String entry){
+    LinkedList<String> temp = new LinkedList<String>();
+    Scanner scan = new Scanner(entry);
+    scan.useDelimiter(", ");
+    while(scan.hasNext()){
+      temp.add(scan.next());
+    }
+    return temp;
+  }
+  
+  /*********************************************************************
+    * Method to write the current contacts to a file
+    * *****************************************************************/
+  public void saveContacts(String filename){
+    try {
+      PrintWriter writer = new PrintWriter(new File(filename));
+      Enumeration<String> keys = contacts.keys();
+      while(keys.hasMoreElements()){
+        String p = keys.nextElement(); //person to be used for the next few lines of write commands
+        writer.println(contacts.get(p).getName()); //line for name
+        writer.println(stringFile(contacts.get(p).getMain()));
+        writer.println(stringFile(contacts.get(p).getVegetables()));
+        writer.println(stringFile(contacts.get(p).getDessert()));
+        writer.println(stringFile(contacts.get(p).getAllergies()));
+        writer.println(END_ENTRY);
+      }
+      
+      
+      writer.close();
+    } catch (IOException ex) {
+      System.out.println("***(T)ERROR*** The file could nt be written: " + ex);
+    }
+  }
+   /*********************************************************************
+    * Helper method for saveContacts that converts a linked list to the 
+    * appropriate string representation for file writing
+    * *****************************************************************/
+  private String stringFile(LinkedList<String> s){
+    String temp = "";
+    int t = 0;
+    //loop through until second to last (to avoid the "," after the last entry)
+    for (int i = 0; i<s.size(); i++){
+      temp+= s.get(i)+", ";
+      t = i;
+    }
+    //temp += s.get(t);
+    return temp;
+  }
+  /*********************************************************************
+    * Simple method to add a person to the contacts list
+    * *****************************************************************/
+  public void add(String key, Person value){
+    contacts.put(key, value);
+    numContacts++;
+  }
+  
+  /*********************************************************************
+    * String representation of contacts book
+    * *****************************************************************/
+  public String toString(){
+    String temp = "My Contacts Book: \n";
+    Enumeration<String> keys = contacts.keys();
+    while(keys.hasMoreElements()){
+      temp+= contacts.get(keys.nextElement());
+      temp+="\n";
+    }
+    return temp;
+  }
+  
+  public static void main(String[] args){
+    Contacts test1 = new Contacts("sample.txt");
+    System.out.println(test1);
+    test1.saveContacts("sampleOut.txt");
+      
+  }
+  
+  public int getNumContacts(){
+   return numContacts; 
+  }
+  
+  public Hashtable<String, Person> getHash(){
+   return contacts; 
+  }
+  
+  
+}

@@ -1,0 +1,398 @@
+/**************************************************************************
+  * Last Edited by Rebecca Scanlon on 5/10/14
+  * 
+  * Created 5/10/14
+  * Created by: Rebecca Scanlon
+  * 
+  * Party: when given a list of people who are attending a party
+  * finds top foods in common of the categories:
+  * main dish, vegetable, and dessert
+  * by using a hashtable to tally how many people like each food.
+  * This class uses a LinkedList<Person> to store people attending the party.
+  * 
+  ***************************************************************************/
+
+import java.util.*;
+
+public class Party{
+  //instance variables
+  private LinkedList<Person> guests;
+  private String name;
+  private int maxHappyMain, maxHappyVeg, maxHappyDes; //number of guests happy with each most liked items
+  
+  /***********************************************************************
+    * Constructor #1: assumes no guests initially added to party
+    * @param n, the name of the party to be constructed
+    **********************************************************************/
+  public Party(String n){
+    name = n;
+    guests = new LinkedList<Person>(); 
+    maxHappyMain=0;
+    maxHappyVeg=0;
+    maxHappyDes=0;
+  }
+  
+  /***********************************************************************
+    * Constructor #2: 
+    * @param n, the name of the party to be constructed
+    * @param g, a LinkedList<Person> of the guests to attend the party
+    **********************************************************************/
+  public Party(String n, LinkedList<Person> g){
+    name = n;
+    guests = g;
+    maxHappyMain=0;
+    maxHappyVeg=0;
+    maxHappyDes=0;
+  }
+  
+  /***********************************************************************
+    * addGuest: adds a guest to a party
+    * @param p, person to be added as a guest to the party
+    * assumption: only add a guest if they are in the contact list (doesn't
+    * matter in this class, but when using this in MyParties, guest should 
+    * be in the contact list)
+    **********************************************************************/
+  public void addGuest(Person p){
+    guests.add(p);
+  }
+  
+  /***********************************************************************
+    * removeGuest: adds a guest to a party
+    * @param p, person to be removed from the party
+    **********************************************************************/
+  public void removeGuest(Person p){
+    guests.remove(p); 
+  }
+  
+  /**********************************************************************
+    * getGuests()
+    * @return a LinkedList<Person> containing all of the guests in the party
+    *********************************************************************/
+  public LinkedList<Person> getGuests(){
+    return  guests;
+  }
+  
+  /***********************************************************************
+    * commonMainDish: finds the commonMainDish of all of the guests in a 
+    * party by using a hashtable with the keys the names of the favorite
+    * foods and the values the number of guests that like that food, also
+    * updates the instance variable maxHappyMain to reflect how many people
+    * like the most commonly liked dishes (i.e. how many happy guests you'll
+    * have if you make one of the recommended dishes.
+    * @return ArrayList<String> containing the main dishes that are liked by the
+    * max number of guests - returns an empty ArrayList if there is no
+    * commonly liked food between any guests.
+    **********************************************************************/
+  public ArrayList<String> commonMainDish(){
+    ArrayList<String> maxKeys= new ArrayList<String>();
+    try{
+      Hashtable<String, Integer> hash = new Hashtable<String, Integer>();
+      for(int i = 0; i<guests.size(); i++){ //for each guest
+        for(int j = 0; j<guests.get(i).getMain().size(); j++){ //enter all main dishes that they like
+          // System.out.println(guests);
+          // System.out.println(guests.get(i));
+          if(hash.containsKey(guests.get(i).getMain().get(j))){ //if the food is already in the hashtable
+            hash.put(guests.get(i).getMain().get(j), hash.get(guests.get(i).getMain().get(j)) + 1); //add another tally to that food
+          } else {
+            //the food is not already in the hashtable, so this is the first guest to like this food
+            //thus put it in the hashtable with a value of 1
+            hash.put(guests.get(i).getMain().get(j), 1);
+          }
+        }
+      }
+      //saves the max value in the table: the max number
+      //of guests that like a food
+      maxHappyMain = Collections.max(hash.values());
+      
+      int minValue = 0; 
+      int maxValue = 0;
+      //search through the hashtable to find the foods with the 
+      //max number of people: if n is the max and m foods have
+      //n people that like that food, then all m foods will be
+      //returned as the recommended food
+      for(Map.Entry<String,Integer> entry : hash.entrySet()) {
+        if(entry.getValue() > maxValue) { //found a main dish that is liked by more guests than the previous max
+          maxKeys.clear(); //New max remove all current keys
+          maxKeys.add(entry.getKey()); //add new favorite
+          maxValue = entry.getValue(); //update new max value
+        }
+        else if(entry.getValue() == maxValue) {
+          maxKeys.add(entry.getKey()); //if same number of people like it as the other max food, then also it it to the list
+        }
+      }
+      
+    }catch(NoSuchElementException e){
+      System.out.println("There are no guests in your party - cannot calculate common main dish.");
+      
+    }
+    return maxKeys; //arraylist containing maximum liked food
+  }
+  
+  
+  /***********************************************************************
+    * commonVegetable: finds the common vegetable of all of the guests in a 
+    * party by using a hashtable with the keys the names of the favorite
+    * vegetables and the values the number of guests that like that vegetable,
+    * also, updates the instance variable maxHappyVeg to reflect how many people
+    * like the most commonly liked vegetables (i.e. how many happy guests you'll
+    * have if you make one of the recommended vegetables.)
+    * @return ArrayList<String> containing the vegetables that are liked by the 
+    * max number of guests - returns an empty ArrayList if there is no
+    * commonly liked vegetables between any guests.
+    **********************************************************************/
+  public ArrayList<String> commonVegetable(){
+    ArrayList<String> maxKeys= new ArrayList<String>();
+    try{
+      Hashtable<String, Integer> hash = new Hashtable<String, Integer>();
+      for(int i = 0; i<guests.size(); i++){ //for each guest
+        for(int j = 0; j<guests.get(i).getVegetables().size(); j++){//enter all vegetables that they like
+          //System.out.println(guests);
+          //System.out.println(guests.get(i));
+          if(hash.containsKey(guests.get(i).getVegetables().get(j))){ //if the food is already in the hashtable
+            //increases tally by one for that food to represent one more guest liking that food
+            hash.put(guests.get(i).getVegetables().get(j), hash.get(guests.get(i).getVegetables().get(j)) + 1);
+          } else {
+            //no guest has already like that vegetable so start tally at 1 guest liking that vegetable
+            hash.put(guests.get(i).getVegetables().get(j), 1);
+          }
+        }
+      }
+      //update maxHappyVeg to reflect the maximum number of guests that like the most commonly liked vegetables
+      maxHappyVeg = Collections.max(hash.values());
+      
+      int minValue = 0; 
+      int maxValue = 0;
+      //search through the hashtable to find the vegetables with the 
+      //max number of people: if n is the max and m vegetables have
+      //n people that like that vegetable, then all m vegetables will be
+      //returned as the recommended food
+      for(Map.Entry<String,Integer> entry : hash.entrySet()) {
+        if(entry.getValue() > maxValue) { //found a vegtable that is liked more than any other vegetable
+          maxKeys.clear(); //New max remove all current keys
+          maxKeys.add(entry.getKey());//add new favorite vegetable
+          maxValue = entry.getValue();//update new maximum number of people liking a vegetable
+        }
+        else if(entry.getValue() == maxValue){//found a veegetable that is liked by the same 
+          //number of guests that like the other most commonly liked vegetables
+          maxKeys.add(entry.getKey()); //add it to the list
+        }
+      }
+    } catch(NoSuchElementException e){
+      System.out.println("There are no guests in your party - cannot calculate common vegetable dish."); 
+    }
+    return maxKeys; //arraylist of most commonly liked vegetables
+  }
+  
+  
+  /***********************************************************************
+    * commonDessert: finds the common dessert of all of the guests in a 
+    * party by using a hashtable with the keys as the names of the favorite
+    * desserts and the values the number of guests that like that dessert,
+    * also, updates the instance variable maxHappyDes to reflect how many people
+    * like the most commonly liked desserts (i.e. how many happy guests you'll
+    * have if you make one of the recommended desserts.)
+    * @return ArrayList<String> containing the desserts with the desserts liked
+    * by the max number of guests- returns an empty ArrayList if there is no
+    * commonly liked desserts between any guests.
+    **********************************************************************/
+  public ArrayList<String> commonDessert(){
+    ArrayList<String> maxKeys= new ArrayList<String>();
+    try{
+      Hashtable<String, Integer> hash = new Hashtable<String, Integer>();
+      for(int i = 0; i<guests.size(); i++){ //for each guest
+        for(int j = 0; j<guests.get(i).getDessert().size(); j++){ //enter all desserts that they like
+          // System.out.println(guests);
+          // System.out.println(guests.get(i));
+          if(hash.containsKey(guests.get(i).getDessert().get(j))){ //if the food is already in the hashtable
+            //increase the tally by one
+            hash.put(guests.get(i).getDessert().get(j), hash.get(guests.get(i).getDessert().get(j)) + 1);
+          } else {
+            //the food is not in the hashtable so start the tally at 1
+            hash.put(guests.get(i).getDessert().get(j), 1);
+          }
+        }
+      }
+      //updates maxHappyDes to be the max number of people that like the most commonly liked dessert
+      maxHappyDes = Collections.max(hash.values());
+      
+      int minValue = 0; 
+      int maxValue = 0;
+      //search through the hashtable to find the desserts with the 
+      //max number of people: if n is the max and m desserts have
+      //n people that like that dessert, then all m desserts will be
+      //returned as the recommended desserts
+      for(Map.Entry<String,Integer> entry : hash.entrySet()) {
+        if(entry.getValue() > maxValue) { //if found a dessert that is liked by more people than the previously most liked food
+          maxKeys.clear(); //New max remove all current keys
+          maxKeys.add(entry.getKey()); //add the food to the list
+          maxValue = entry.getValue(); //update the maxvalue
+        }
+        else if(entry.getValue() == maxValue){ //if found food that is liked by the same number of people as the current most liked food
+          maxKeys.add(entry.getKey()); //add the food to the list
+        }
+      }
+    }catch(NoSuchElementException e){
+      System.out.println("There are no guests in your party - cannot calculate common dessert."); 
+    }
+    return maxKeys; //contains all most commonly liked desserts
+  }
+  
+  
+  /***********************************************************************
+    * guestsWithAllergies: finds guests with allergies
+    * @return string temp containing all of the guests that have allergies
+    * allong with their allergies
+    **********************************************************************/
+  public String guestAllergies(){
+    String temp ="";
+    for(int i = 0; i<guests.size(); i++){
+      if(!(guests.get(i).getAllergies().size()==0)){
+        temp+=guests.get(i).getName()+ " is allergic to: ";
+        for(int j=0; j<guests.get(i).getAllergies().size();j++){
+          temp+= guests.get(i).getAllergies().get(j) + " ";
+        }
+        temp+="\n";
+      }
+    }
+    return temp;
+  }
+  
+  /***********************************************************************
+    * getAllCommon: 
+    * @return ArrayList<String> of all common foods for use in the SearchPanel
+    * class in order to give option to search for recipes for all recommended food
+    **********************************************************************/
+  public ArrayList<String>getAllCommon(){
+    ArrayList<String> allCommon = new ArrayList<String>();
+    ArrayList<String> temp1 = commonMainDish();
+    ArrayList<String> temp2 = commonVegetable();
+    ArrayList<String> temp3 = commonDessert();
+    
+    for(int i = 0; i<temp1.size(); i++){
+      allCommon.add(temp1.get(i));
+    }
+    for(int i = 0; i<temp2.size(); i++){
+      allCommon.add(temp2.get(i));
+    }
+    for(int i = 0; i<temp3.size(); i++){
+      allCommon.add(temp3.get(i));
+    }
+    
+    return allCommon;
+    
+  }
+  /***********************************************************************
+    * getName
+    * @return String name, name of the party
+    **********************************************************************/
+  public String getName(){
+    return name;
+  }
+  
+  /***********************************************************************
+    * toString
+    * @return: string representation of a party
+    **********************************************************************/
+  public String toString(){
+    String temp =name.toUpperCase() + "\nGuests: ";
+    if(guests.size()==0) temp+= "none";
+    for(int i = 0; i<guests.size(); i++){
+      temp+= guests.get(i).getName(); 
+      if(!(i==guests.size()-1))
+        temp+=", ";
+    }
+    return temp;
+  }
+  
+  /***********************************************************************
+    * isGuest
+    * @param String p, a guest name to check if they are already a guest of the party
+    * @return boolen: true if the name is the name of a guest already in the party,
+    * false otherwise
+    *********************************************************************/
+  public boolean isGuest(String p){
+    if(guests.size()!=0){
+    for(int i = 0; i<guests.size(); i++){
+      if(p.equals(guests.get(i).getName()))
+        return true;
+    }
+    }
+    return false;
+    
+  }
+  
+  
+  
+  
+  /***********************************************************************
+    * getmaxHappyMain
+    * @return int maxHappyMain, the max number of people that will be happy
+    * if one of the recommended main dishes is served
+    *********************************************************************/
+  public int getmaxHappyMain(){
+    return maxHappyMain;
+  }
+  
+    /***********************************************************************
+    * getmaxHappyVeg
+    * @return int maxHappyVeg, the max number of people that will be happy
+    * if one of the recommended vegetables is served
+    *********************************************************************/
+  public int getmaxHappyVeg(){
+    return maxHappyVeg;
+  }
+  
+    /***********************************************************************
+    * getmaxHappyDes
+    * @return int maxHappyDes, the max number of people that will be happy
+    * if one of the recommended desserts is served
+    *********************************************************************/
+  public int getmaxHappyDes(){
+    return maxHappyDes;
+  }
+  
+  
+  /***********************************************************************
+    * main: testing!
+    **********************************************************************/
+  public static void main(String[] args){
+    Party party = new Party("Birthday Bash");
+    System.out.println(party);
+    
+    LinkedList<String> mainReb = new LinkedList<String>();
+    mainReb.add("chicken");
+    mainReb.add("pasta");
+    LinkedList<String> vegReb = new LinkedList<String>();
+    vegReb.add("corn");
+    vegReb.add("salad");
+    vegReb.add("carrots");
+    LinkedList<String> desReb = new LinkedList<String>();
+    desReb.add("cake");
+    desReb.add("brownies");
+    desReb.add("cookies");
+    desReb.add("ice cream");
+    LinkedList<String> allReb = new LinkedList<String>();
+    allReb.add("peanuts");
+    Person rebecca = new Person("Rebecca", mainReb, vegReb, desReb, allReb);
+    
+    Person cecille = new Person("Cecille");
+    cecille.addMain("pasta");
+    cecille.addMain("chicken");
+    cecille.addVegetable("spinach");
+    cecille.addAllergy("gluten");
+    cecille.addAllergy("oranges");
+    party.addGuest(rebecca);
+    party.addGuest(cecille);
+    
+    System.out.println(party);
+    
+    party.commonMainDish();
+    party.commonVegetable();
+    party.commonDessert();
+    System.out.println(party.maxHappyMain + " out of " + party.guests.size() + " guests like: \n" + party.commonMainDish());
+    System.out.println(party.maxHappyVeg + " out of " + party.guests.size() + " guests like: \n" +party.commonVegetable());
+    System.out.println(party.maxHappyDes + " out of " + party.guests.size() + " guests like: \n" +party.commonDessert());
+    System.out.println(party.guestAllergies());
+    System.out.println(party.getAllCommon());
+  }
+}

@@ -1,0 +1,8 @@
+shellfish
+peanuts
+gluten
+tree nuts
+wheat
+milk
+egg
+soy

@@ -1,0 +1,185 @@
+/*****************************************************************
+  * Last Edited by Rebecca on 5/10/14
+  * 
+  * Authors: Rebecca Scanlon and Cecille Yang
+  * Date Created: 5/10/14
+  * 
+  * MyParties: contains a LinkedList of Party objects and contacts
+  * 
+  ***************************************************************/
+import java.util.*;
+import java.io.*;
+
+public class MyParties{
+  Contacts myContacts;
+  private LinkedList<Party> myparties;
+  private final String END_ENTRY = "---";
+  private boolean notAdded;
+  
+  public MyParties(){
+    myContacts = new Contacts();
+    myparties = new LinkedList<Party>(); 
+    notAdded = false;
+  }
+  
+  public MyParties(String filename, Contacts c){
+     myContacts = c;
+     notAdded = false;
+    try {   
+      File f = new File(filename);
+      Scanner s = new Scanner(f);
+      boolean name = true;
+      
+      myparties = new LinkedList<Party>();
+      Party p = new Party("");
+      while(s.hasNext()){
+        
+        String temp = s.nextLine();
+        //System.out.println(temp);
+        //System.out.println(temp);
+        //if file is not signaling the end of a party...
+        if(!temp.equals(END_ENTRY)){
+          if(name){
+            p = new Party(temp);
+            
+            name=false;
+          } else{
+            if(c.getPerson(temp)!=null){ //only adds guests in the contact book
+              p.addGuest(c.getPerson(temp)); 
+              System.out.println(temp);
+            }
+            else notAdded = true;
+            
+          }
+          
+        } else { //end of a party
+          //temp = s.nextLine();
+          myparties.add(p);
+          name = true;
+        }
+      }
+      
+    }     
+    
+    
+    catch(FileNotFoundException e){
+      System.out.println("Sorry, filename is not correct");
+    }
+  }
+  
+  public MyParties(Party p){
+    myContacts = new Contacts();
+    myparties = new LinkedList<Party>();
+    myparties.add(p);
+    notAdded = false;
+  }
+  public MyParties(Contacts c){
+   myContacts = c;
+   myparties = new LinkedList<Party>();
+   notAdded = false;
+  }
+  public boolean getAllAdded(){
+    return !notAdded;
+  }
+  public boolean addParty(Party p){
+    boolean sameName = false;
+    for(int i = 0; i<myparties.size(); i++){
+      if(p.getName().equals(myparties.get(i).getName())){
+        sameName=true;
+      }
+    }
+    if(sameName){
+     System.out.println("Party was not added: name of party already used.");
+    } else{
+    myparties.add(p);
+    }
+    return sameName;
+  }
+  
+  public void deleteParty(Party p){
+    myparties.remove(p); 
+  } 
+  public LinkedList<Party> getParties(){
+    return myparties;
+  }
+  
+  public Party getParty(int i){
+    return myparties.get(i);   
+  }
+  
+  public void setContacts(Contacts c){
+    myContacts = c;
+  }
+  public Contacts getContacts(){
+    return myContacts;
+  }
+  
+  public String toString(){
+    String temp = "";
+    for (int i = 0; i<myparties.size(); i++){
+      temp+=myparties.get(i).toString();
+      temp+="\n";
+    }
+    return temp;
+  }
+  
+  public String[] getNamesofContacts(){
+    String[] names = new String[myContacts.getNumContacts()];
+        
+    Enumeration<String> keys = myContacts.getHash().keys();
+    int i = 0;
+    while(keys.hasMoreElements()){
+      names[i]=keys.nextElement();
+      i++;
+    }
+    return names;
+ 
+  }
+  
+  public String savePartyToString(){
+    String temp="";
+    for(int i = 0; i<myparties.size(); i++){
+     temp += myparties.get(i).getName()+"\n";
+  //  System.out.println(myparties.get(i));
+     LinkedList<Person> guests = myparties.get(i).getGuests();
+     for(int j=0; j<guests.size(); j++){
+ 
+      temp+= guests.get(j).getName()+"\n";
+     }
+     temp+= END_ENTRY + "\n";
+    }
+    return temp;
+  }
+  
+  public void saveToFile(String filename){
+   try {
+      PrintWriter writer = new PrintWriter(new File(filename));      
+      writer.print(this.savePartyToString());
+      writer.close();
+    } catch (IOException ex) {
+      System.out.println("***(T)ERROR*** The file could nt be written: " + ex);
+    } 
+  }
+  
+  
+  
+  public static void main(String[] args){
+   MyParties parties = new MyParties();
+   Party a = new Party("a");
+   Party b = new Party("b");
+   parties.addParty(a);
+   parties.addParty(b);
+   Person person = new Person("person");
+   a.addGuest(person);
+   System.out.println(parties.savePartyToString());
+   parties.saveToFile("saveToFileTEST.txt");
+   System.out.println(parties);
+   Contacts s = new Contacts();
+   s.add("person", new Person("person"));
+  // System.out.println(parties.get(0));
+   
+   MyParties test = new MyParties("saveToFileTEST.txt", s);
+   System.out.println("Printing saveToFileTEST");
+   System.out.println(test);
+  }
+}
